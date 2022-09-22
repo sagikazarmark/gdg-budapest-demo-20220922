@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-no-secret
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-no-secret
+  template:
+    metadata:
+      labels:
+        app: demo-no-secret
+    spec:
+      containers:
+        - name: demo
+          image: ghcr.io/sagikazarmark/gdg-budapest-demo-20220922:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: MY_SECRET
+              value: "not secret at all"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-secret-env
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-secret-env
+  template:
+    metadata:
+      labels:
+        app: demo-secret-env
+    spec:
+      serviceAccountName: demo
+      containers:
+        - name: demo
+          image: ghcr.io/sagikazarmark/gdg-budapest-demo-20220922:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: MY_SECRET
+              value: gcp:secretmanager:projects/PROJECT_ID/secrets/my-secret
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-secret
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-secret
+  template:
+    metadata:
+      labels:
+        app: demo-secret
+    spec:
+      serviceAccountName: demo
+      containers:
+        - name: demo
+          image: ghcr.io/sagikazarmark/gdg-budapest-demo-20220922:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: my-secret

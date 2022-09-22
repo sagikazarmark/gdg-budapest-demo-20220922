@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-no-secret
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-no-secret
+  template:
+    metadata:
+      labels:
+        app: demo-no-secret
+    spec:
+      containers:
+        - name: demo
+          image: ghcr.io/sagikazarmark/gdg-budapest-demo-20220922:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: MY_SECRET
+              value: "not secret at all"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-secret
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-secret
+  template:
+    metadata:
+      labels:
+        app: demo-secret
+    spec:
+      containers:
+        - name: demo
+          image: ghcr.io/sagikazarmark/gdg-budapest-demo-20220922:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: MY_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: my-secret
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-secret-reload
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-secret-reload
+  template:
+    metadata:
+      labels:
+        app: demo-secret-reaload
+    spec:
+      containers:
+        - name: demo
+          image: ghcr.io/sagikazarmark/gdg-budapest-demo-20220922:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: MY_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: my-secret

@@ -1,0 +1,5 @@
+provider: google
+
+namespaceSelector:
+  matchLabels:
+    kube-secrets-init.doit-intl.com/enable-mutation: "true"
